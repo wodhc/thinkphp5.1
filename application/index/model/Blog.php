@@ -14,4 +14,8 @@ class Blog extends Model
     public function get_list(){
         return $this->select()->toArray();
     }
+
+    public function spider() {
+
+    }
 }
