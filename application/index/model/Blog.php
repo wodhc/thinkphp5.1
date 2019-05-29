@@ -16,6 +16,42 @@ class Blog extends Model
     }
 
     public function spider() {
+        /*$url = 'https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5ODYxMDA5OQ==&f=json&offset=200&count=10&is_ok=1&scene=124&uin=MjA2MTAyODcwMA%3D%3D&key=83bd2544289085217f278a0b98db36b5b60c73d8ba996d6730df455e168178434993821374bf9bf1f4eb80720fcce35b6ded8816bcb6b1f086f144af97434011dab02c0b66b68b08e33fa662cc4903ac&pass_ticket=F3GYV7opWNIZlNEzWCBBr%2BhkW2sKWThlQRBw24qhR6kZSliTyX%2F6nJC07dTe%2FirS&wxtoken=&appmsg_token=1008_VSP57%252FbZmpFDMUezecF-I049wbhM9RqSUQEEVg~~&x5=0&f=json';
+        $response = json_decode(file_get_contents($url), true);
+        halt(json_decode($response['general_msg_list'], true));*/
 
+        for ($i = 0; $i <= 58; $i++) {
+            $offset = $i * 10;
+            $url = 'https://mp.weixin.qq.com/mp/profile_ext?action=getmsg&__biz=MjM5ODYxMDA5OQ==&f=json&offset='.$offset.'&count=10&is_ok=1&scene=124&uin=MjA2MTAyODcwMA%3D%3D&key=3200a59e5c1504c275d43288707adfd43ffac9e0b6e25cd5bdc123ef5cdbd06239da211294e55a323ce2ef2ffbce45831b562f5f043afd42e021007c553a933ec3681d84999991153fcc6628cfaa24da&pass_ticket=F3GYV7opWNIZlNEzWCBBr%2BhkW2sKWThlQRBw24qhR6kZSliTyX%2F6nJC07dTe%2FirS&wxtoken=&appmsg_token=1008_5SXdZZ836bevR83kxv43idPlE0AiZ7CcC3UaTg~~&x5=0&f=json';
+            $response = json_decode(file_get_contents($url), true);
+            if ($response['ret'] ==0 ) {
+                $general_msg_list = json_decode($response['general_msg_list'], true);
+                //halt($general_msg_list);
+                $data = [];
+                foreach ($general_msg_list['list'] as $item) {
+                    if (isset($item['app_msg_ext_info'])) {
+                        $_item = $item['app_msg_ext_info'];
+                        $data[] = [
+                            'origin_id' => $item['comm_msg_info']['id'],
+                            'title' => $_item['title'],
+                            'digest' => $_item['digest'],
+                            'content' => $_item['content'],
+                            'content_url' => $_item['content_url'],
+                            'cover' => $_item['cover'],
+                            'ctime' => $item['comm_msg_info']['datetime']
+                        ];
+                    }
+                }
+                $this->saveAll($data);
+            }
+        }
+    }
+
+    public function get_content(){
+        $list = $this->get_list();
+        foreach ($list as $item) {
+            $content = file_get_contents($item['content_url']);
+            $this->save(['content' => $content], ['id' => $item['id']]);
+        }
     }
 }

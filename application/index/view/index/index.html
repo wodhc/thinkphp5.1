@@ -1,4 +1,16 @@
-<div style="padding: 24px 48px;">
-    <h3>It works!</h3>
-</div>
+<style>
+    ol li {
+        line-height: 30px;
+        word-wrap: break-word;
+        word-break: normal;
+    }
+    ol li a {
+        text-decoration: none;
 
+    }
+</style>
+<ol>
+    {volist name="list" id="item"}
+    <li><a href="{$item['content_url']}" target="_blank">{$item['title']}</a></li>
+    {/volist}
+</ol>
